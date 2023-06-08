@@ -1,0 +1,29 @@
+version: "4.19"
+services:
+  proyectos-backend-micro:
+    container_name: backend-proyecto-micro
+    image: backend-proyecto-micro:v1
+    build:
+      context: .
+    ports:
+      - "4007"
+    environment:
+      - MONGO_URI=${MONGO_URI}
+      - PORT=4007
+    networks:
+      - proyectos-app
+
+  balanceador-carga:
+    container_name: balanceador-carga
+    image: balanceador-carga:v1
+    build:
+      context: ./balanceador
+    ports: 
+      -"4004:80"
+    networks: 
+      - proyectos-app
+
+networks:
+  proyectos-app:
+
+
