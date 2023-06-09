@@ -2,7 +2,7 @@ version: "4.19"
 services:
   proyectos-backend-micro:
     container_name: backend-proyecto-micro
-    image: backend-proyecto-micro:v1
+    image: backend-proyecto-micro:latest
     build:
       context: .
     ports:
@@ -15,7 +15,7 @@ services:
 
   balanceador-carga:
     container_name: balanceador-carga
-    image: balanceador-carga:v1
+    image: balanceador-carga:latest
     build:
       context: ./balanceador
     ports: 
