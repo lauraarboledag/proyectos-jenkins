@@ -1,44 +1,47 @@
-pipeline{
+pipeline {
     agent any
 
-    stages{
-
-        stage('Clonar el repositorio'){
-
-             steps {
+    stages {
+        stage('Clonar el Repositorio'){
+            steps {
                 git branch: 'main', credentialsId: 'git-jenkins', url: 'https://github.com/lauraarboledag/proyectos-jenkins.git'
             }
-
         }
-
-        stage('Contruir imagen en Docker'){
+        stage('Construir imagen de Docker'){
             steps {
-                withCredentials([
-                    String(credentialsId: 'MONGO_URI', variable: 'MONGO_URI')
-            ]){
-                  docker.build('backend-proyecto-micro:v1', '--build-arg MONGO_URI=${MONGO_URI} .')
-            }
-            }
-        }
-
-        stage('Desplegar contenedores Docker'){
-            steps{
-
-                Script {
+                script {
                     withCredentials([
-                    String(credentialsId: 'MONGO_URI', variable: 'MONGO_URI')
-            ]){
-                 sh """
-                 sed '$s|{MONGO_URI}|${MONGO_URI}|g' docker-compose.yml -> docker-compose-update
-                    docker-compose -f docker-compose-update.yml up -d
-                 """
-            }
-                
+                        string(credentialsId: 'MONGO_URI', variable: 'MONGO_URI')
+                    ]) {
+                        docker.build('proyectos-backend-micro:v1', '--build-arg MONGO_URI=${MONGO_URI} .')
+                    }
                 }
-
             }
-
         }
+        stage('Desplegar contenedores Docker'){
+            steps {
+                script {
+                    withCredentials([
+                            string(credentialsId: 'MONGO_URI', variable: 'MONGO_URI')
+                    ]) {
+                        sh """
+                            sed 's|\\${MONGO_URI}|${MONGO_URI}|g' docker-compose.yml > docker-compose-update.yml
+                            docker-compose -f docker-compose-update.yml up -d
+                        """
+                    }
+                }
+            }
+        }
+    }
 
+    post {
+        always {
+            emailext (
+                subject: "Estado del build: ${currentBuild.currentResult}",
+                body: "Se ha completado el build. Puede detallar en: ${env.BUILD_URL}",
+                to: "laura.arboledag@est.iudigital.edu.co",
+                from: "jenkins@iudigital.edu.co"
+            )
+        }
     }
 }
