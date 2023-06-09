@@ -18,11 +18,10 @@ services:
     image: balanceador-carga:latest
     build:
       context: ./balanceador
-    ports: 
-      -"4004:80"
-    networks: 
+    ports:
+      - "4004:80"
+    networks:
       - proyectos-app
-
 networks:
   proyectos-app:
 
